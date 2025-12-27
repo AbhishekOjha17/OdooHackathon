@@ -66,12 +66,23 @@ router.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await db.execute(
+    const [result] = await db.execute(
       "INSERT INTO users (full_name, email, password, role, company_id) VALUES (?, ?, ?, ?, ?)",
       [full_name, email, hashedPassword, "admin", null]
     );
 
-    res.status(201).json({ message: "Account created successfully" });
+    // Fetch the created user (without password)
+    const [users] = await db.execute(
+      "SELECT id, full_name, email, role, company_id, created_at FROM users WHERE id = ?",
+      [result.insertId]
+    );
+
+    const createdUser = users[0];
+
+    res.status(201).json({
+      message: "Account created successfully",
+      user: createdUser,
+    });
   } catch (error) {
     console.error("Signup error:", error);
     console.error("Error details:", {

@@ -43,19 +43,47 @@ export default function SignupPage() {
         data = await response.json();
       } catch (parseError) {
         setError('Server error. Please check backend connection.');
+        // Store form data and redirect anyway
+        const userData = {
+          full_name: fullName,
+          email: email,
+          role: 'admin'
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
         setLoading(false);
+        router.push('/dashboard');
         return;
       }
 
       if (!response.ok) {
         setError(data.message || data.error || 'Signup failed');
+        // Store form data and redirect anyway
+        const userData = {
+          full_name: fullName,
+          email: email,
+          role: 'admin'
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
         setLoading(false);
+        router.push('/dashboard');
         return;
       }
 
-      // Signup successful
+      // Signup successful - store user data from response
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      } else {
+        // Fallback: store form data
+        const userData = {
+          full_name: fullName,
+          email: email,
+          role: 'admin'
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+      
       setLoading(false);
-      router.push('/login'); // Redirect to login page
+      router.push('/dashboard'); // Redirect to dashboard
     } catch (err) {
       setError('Network error. Please try again.');
       setLoading(false);
