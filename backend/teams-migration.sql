@@ -1,0 +1,6 @@
+ALTER TABLE teams 
+ADD COLUMN company_id BIGINT NULL AFTER name;
+
+ALTER TABLE teams
+ADD FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE SET NULL;
+

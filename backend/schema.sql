@@ -41,8 +41,15 @@ CREATE TABLE IF NOT EXISTS equipment (
   serial_number VARCHAR(255),
   category_id BIGINT,
   work_center_id BIGINT,
+  employee_id BIGINT,
+  department VARCHAR(255),
+  technician_id BIGINT,
+  company_id BIGINT,
   FOREIGN KEY (category_id) REFERENCES equipment_categories(id) ON DELETE SET NULL,
-  FOREIGN KEY (work_center_id) REFERENCES work_centers(id) ON DELETE SET NULL
+  FOREIGN KEY (work_center_id) REFERENCES work_centers(id) ON DELETE SET NULL,
+  FOREIGN KEY (employee_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (technician_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE SET NULL
 );
 
 -- Teams table
@@ -78,11 +85,27 @@ ON DUPLICATE KEY UPDATE name = name;
 CREATE TABLE IF NOT EXISTS maintenance_requests (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   subject VARCHAR(255) NOT NULL,
+  created_by BIGINT,
   equipment_id BIGINT,
+  category_id BIGINT,
+  request_date DATE,
+  maintenance_type ENUM('Corrective', 'Preventive') DEFAULT 'Corrective',
+  team_id BIGINT,
+  technician_id BIGINT,
+  scheduled_date DATE,
+  duration INT,
+  priority ENUM('Low', 'Medium', 'High') DEFAULT 'Low',
   status_id BIGINT,
-  priority VARCHAR(50),
+  company_id BIGINT,
+  notes TEXT,
+  instructions TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
   FOREIGN KEY (equipment_id) REFERENCES equipment(id) ON DELETE SET NULL,
-  FOREIGN KEY (status_id) REFERENCES maintenance_status(id) ON DELETE SET NULL
+  FOREIGN KEY (category_id) REFERENCES equipment_categories(id) ON DELETE SET NULL,
+  FOREIGN KEY (status_id) REFERENCES maintenance_status(id) ON DELETE SET NULL,
+  FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL,
+  FOREIGN KEY (technician_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE SET NULL
 );
 
