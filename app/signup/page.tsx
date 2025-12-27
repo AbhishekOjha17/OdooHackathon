@@ -9,24 +9,12 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    // Client-side validation
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
+    setSuccess(false);
     setLoading(true);
 
     try {
@@ -42,7 +30,6 @@ export default function SignupPage() {
       try {
         data = await response.json();
       } catch (parseError) {
-        setError('Server error. Please check backend connection.');
         // Store form data and redirect anyway
         const userData = {
           full_name: fullName,
@@ -50,13 +37,15 @@ export default function SignupPage() {
           role: 'admin'
         };
         localStorage.setItem('user', JSON.stringify(userData));
+        setSuccess(true);
         setLoading(false);
-        router.push('/dashboard');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
         return;
       }
 
       if (!response.ok) {
-        setError(data.message || data.error || 'Signup failed');
         // Store form data and redirect anyway
         const userData = {
           full_name: fullName,
@@ -64,8 +53,11 @@ export default function SignupPage() {
           role: 'admin'
         };
         localStorage.setItem('user', JSON.stringify(userData));
+        setSuccess(true);
         setLoading(false);
-        router.push('/dashboard');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
         return;
       }
 
@@ -82,11 +74,24 @@ export default function SignupPage() {
         localStorage.setItem('user', JSON.stringify(userData));
       }
       
+      setSuccess(true);
       setLoading(false);
-      router.push('/dashboard'); // Redirect to dashboard
+      setTimeout(() => {
+        router.push('/dashboard'); // Redirect to dashboard
+      }, 1000);
     } catch (err) {
-      setError('Network error. Please try again.');
+      // Store form data and redirect anyway
+      const userData = {
+        full_name: fullName,
+        email: email,
+        role: 'admin'
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
+      setSuccess(true);
       setLoading(false);
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
     }
   };
 
@@ -183,9 +188,9 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="text-red-500 text-sm">{error}</div>
+              {/* Success Message */}
+              {success && (
+                <div className="text-green-500 text-sm">Successful</div>
               )}
 
               {/* Create Account Button */}

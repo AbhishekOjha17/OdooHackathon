@@ -79,6 +79,20 @@ export default function MaintenanceModal({
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [showWorkCentersModal, setShowWorkCentersModal] = useState(false);
   const [selectedWorkCenter, setSelectedWorkCenter] = useState<any>(null);
+  const [currentUserName, setCurrentUserName] = useState<string>("");
+
+  useEffect(() => {
+    // Get current user name from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUserName(user.full_name || "");
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -359,7 +373,9 @@ export default function MaintenanceModal({
                   <input
                     type="text"
                     value={
-                      formData.created_by && Array.isArray(technicians)
+                      mode === "create"
+                        ? currentUserName
+                        : formData.created_by && Array.isArray(technicians)
                         ? technicians.find((t) => t.id === formData.created_by)
                             ?.full_name || ""
                         : ""
